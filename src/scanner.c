@@ -10,6 +10,7 @@ enum TokenType {
   INTERPOLATED_STRING_END,
   INTERPOLATED_MULTILINE_STRING_MIDDLE,
   INTERPOLATED_MULTILINE_STRING_END,
+  NEWLINE,
 };
 
 typedef struct keyword {
@@ -122,17 +123,22 @@ static bool scan_string_content(TSLexer *lexer, bool is_multiline, bool has_inte
 
 bool tree_sitter_scalar2c_external_scanner_scan(void *payload, TSLexer *lexer,
                                              const bool *valid_symbols) {
-  unsigned newline_count = 0;
-  while (iswspace(lexer->lookahead)) {
-    if (lexer->lookahead == '\n') newline_count++;
+  if (valid_symbols[AUTOMATIC_SEMICOLON] && valid_symbols[NEWLINE] && lexer->lookahead == '\n') {
     lexer->advance(lexer, true);
-  }
 
-  if (valid_symbols[AUTOMATIC_SEMICOLON] && newline_count > 0) {
+    unsigned newline_count = 1;
+    while (lexer->lookahead == '\n') {
+      lexer->advance(lexer, true);
+      newline_count++;
+    }
+
+    if (newline_count > 1) {
+      lexer->mark_end(lexer);
+      lexer->result_symbol = AUTOMATIC_SEMICOLON;
+      return true;
+    }
     lexer->mark_end(lexer);
-    lexer->result_symbol = AUTOMATIC_SEMICOLON;
-
-    if (newline_count > 1) return true;
+    lexer->result_symbol = NEWLINE;
 
     int active_count = sizeof(invalid_begin_strings) / sizeof(keyword*);
     int active_automata[active_count];
@@ -173,11 +179,6 @@ bool tree_sitter_scalar2c_external_scanner_scan(void *payload, TSLexer *lexer,
       }
     }
     return true;
-  }
-
-  while (iswspace(lexer->lookahead)) {
-    if (lexer->lookahead == '\n') newline_count++;
-    lexer->advance(lexer, true);
   }
 
   if (valid_symbols[SIMPLE_STRING] && lexer->lookahead == '"') {
