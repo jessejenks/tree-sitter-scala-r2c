@@ -130,6 +130,11 @@ rules:
                                          | generic_function
                                          | assignment_expression
                                          | infix_expression
+                                         | return_expression
+                                         | throw_expression
+                                         | while_expression
+                                         | do_while_expression
+                                         | unit
                                          | _simple_expression
   _simple_expression                   ::= interpolated_string_expression
                                          | parenthesized_expression
@@ -154,6 +159,13 @@ rules:
   case_block                           ::= -1('{' '}') | ('{' case_clause+ '}')
   case_clause                          ::= <('case' (_pattern: pattern) guard? '=>' (_block?: body))
   guard                                ::= 'if' (_expression: condition)
+
+  return_expression                    ::= <('return' _expression?)
+  throw_expression                     ::= <('throw' _expression)
+  while_expression                     ::= >('while' (parenthesized_expression: condition) (_expression: body))
+  do_while_expression                  ::= >('do' (_expression: body) 'while' (parenthesized_expression: condition))
+
+  unit                                 ::= '(' ')'
 
   enumerators          ::= <(generator (_semicolon generator)*)
   generator            ::= <(_pattern '<-' _expression (_semicolon? guard | _semicolon _pattern '=' _expression)*)
