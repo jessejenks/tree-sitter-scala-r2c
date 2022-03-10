@@ -354,3 +354,140 @@ object foo {
         (generator (identifier) (identifier))
         (generator (identifier) (call_expression (identifier) (arguments (identifier))) (guard (identifier))))
       (infix_expression (identifier) (identifier) (number))))))
+
+===============================
+Return expressions
+===============================
+
+object Hello {
+  def foo() {
+    return
+  }
+
+  def bar() {
+    return 1 + 2 * 3 - 4
+  }
+}
+-------------------------------
+(compilation_unit
+  (object_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (return_expression)))
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (return_expression
+            (infix_expression
+              (number)
+              (identifier)
+              (infix_expression
+                (number)
+                (identifier)
+                (infix_expression
+                  (number)
+                  (identifier)
+                  (number))))))))))
+
+===============================
+Throw expressions
+===============================
+
+object Hello {
+	def foo() {
+    throw new Exception()
+  }
+}
+-------------------------------
+(compilation_unit
+  (object_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (throw_expression
+            (instance_expression
+              (call_expression
+                (identifier)
+                (arguments)))))))))
+
+===============================
+While expressions
+===============================
+
+object Hello {
+	def foo() {
+    while (a + 2 < 3) {
+      a = b + c
+    }
+  }
+}
+-------------------------------
+(compilation_unit
+  (object_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (while_expression
+            (parenthesized_expression
+              (infix_expression
+                (identifier)
+                (identifier)
+                (infix_expression
+                  (number)
+                  (identifier)
+                  (number))))
+            (block
+              (assignment_expression
+                (identifier)
+                (infix_expression
+                  (identifier)
+                  (identifier)
+                  (identifier))))))))))
+
+===============================
+Do-while expressions
+===============================
+
+object Hello {
+	def foo() {
+    do {
+      a = b + c
+    } while (a + 2 < 3)
+  }
+}
+-------------------------------
+(compilation_unit
+  (object_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (do_while_expression
+            (block
+              (assignment_expression
+                (identifier)
+                (infix_expression
+                  (identifier)
+                  (identifier)
+                  (identifier))))
+            (parenthesized_expression
+              (infix_expression
+                (identifier)
+                (identifier)
+                (infix_expression
+                  (number)
+                  (identifier)
+                  (number))))))))))
